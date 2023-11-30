@@ -23,7 +23,7 @@ public class MainController implements Initializable {
     @FXML private AnchorPane ap;
     Stage stage;
     @FXML
-    private Button addSongs_button;
+    Label currentSongLabel, nextSongLabel;
     @FXML
     private TableView<Song> songsTable;
     @FXML
@@ -37,13 +37,15 @@ public class MainController implements Initializable {
     @FXML
     MediaPlayer mediaPlayer;
     @FXML
-    ArrayList<File> songQueue;
+    ArrayList<Song> songQueue;
     @FXML
     int currentSongIndex;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         songQueue = new ArrayList<>();
         songCount = 1; // used for displaying the order of songs to play in the table
+        currentSongLabel.setText("Current Song: ");
+        nextSongLabel.setText("Next Song: ");
 
         /* set cell factory is for the table view. it puts items in different columns depending on the property
         * of the song class */
@@ -63,18 +65,23 @@ public class MainController implements Initializable {
         Song song = new Song(selectedFile, AudioParser.getMetadata(selectedFile),songCount);
         ObservableList<Song> songs = songsTable.getItems();
         songs.add(song);
-        songQueue.add(song.getFile());
+        songQueue.add(song);
         songsTable.setItems(songs);
 
         // update the song counter to show the order of songs playing
         songCount++;
     }
     public void playSong(){
-        media = new Media(songQueue.get(currentSongIndex).toURI().toString());
+        media = new Media(songQueue.get(currentSongIndex).getFile().toURI().toString());
         mediaPlayer = new MediaPlayer(media);
         mediaPlayer.play();
-        if (currentSongIndex < (songQueue.size()-1)){
+        currentSongLabel.setText("Current Song: "+ songQueue.get(currentSongIndex).getArtist() + " - " + songQueue.get(currentSongIndex).getTitle());
+        if (songQueue.get(currentSongIndex+1)!=null){
             currentSongIndex++;
+            nextSongLabel.setText("Next Song: "+ songQueue.get(currentSongIndex).getArtist() + " - " + songQueue.get(currentSongIndex).getTitle());
+        } else {
+            nextSongLabel.setText("Next Song: ");
+            currentSongIndex-=1;
         }
     }
 }

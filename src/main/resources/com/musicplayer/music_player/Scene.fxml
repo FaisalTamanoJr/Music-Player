@@ -41,8 +41,8 @@
          <Button fx:id="play_button" layoutX="48.0" layoutY="6.0" mnemonicParsing="false" onAction="#playSong" text="Play/Stop" />
          <Button fx:id="next_button" layoutX="121.0" layoutY="6.0" mnemonicParsing="false" text="Next" />
          <Button fx:id="prev_button" layoutY="6.0" mnemonicParsing="false" text="Prev." />
-         <Label fx:id="currentSong_label" layoutX="181.0" layoutY="23.0" text="Current Song:" />
-         <Label fx:id="nextSong_label" layoutX="181.0" layoutY="-3.0" text="Next Song:" />
+         <Label fx:id="currentSongLabel" layoutX="181.0" layoutY="23.0" text="Current Song:" />
+         <Label fx:id="nextSongLabel" layoutX="181.0" layoutY="-3.0" text="Next Song:" />
          <Button fx:id="shuffle_button" layoutX="448.0" layoutY="5.0" mnemonicParsing="false" text="Shuffle" />
          <Slider fx:id="volume_slider" layoutX="511.0" layoutY="11.0" />
          <Label layoutX="511.0" layoutY="22.0" text="Volume" />
