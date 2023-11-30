@@ -6,6 +6,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.tika.exception.TikaException;
@@ -30,8 +32,17 @@ public class MainController implements Initializable {
     private TableColumn<Song, Integer> orderColumn;
     @FXML
     private Integer songCount;
+    @FXML
+    Media media;
+    @FXML
+    MediaPlayer mediaPlayer;
+    @FXML
+    ArrayList<File> songQueue;
+    @FXML
+    int currentSongIndex;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        songQueue = new ArrayList<>();
         songCount = 1; // used for displaying the order of songs to play in the table
 
         /* set cell factory is for the table view. it puts items in different columns depending on the property
@@ -40,6 +51,7 @@ public class MainController implements Initializable {
         artistColumn.setCellValueFactory(new PropertyValueFactory<Song, String>("artist"));
         albumColumn.setCellValueFactory(new PropertyValueFactory<Song, String>("album"));
         orderColumn.setCellValueFactory(new PropertyValueFactory<Song, Integer>("order"));
+
     }
     public void addSong() throws TikaException, IOException, SAXException {
         // for opening and selecting an mp3 file
@@ -51,9 +63,18 @@ public class MainController implements Initializable {
         Song song = new Song(selectedFile, AudioParser.getMetadata(selectedFile),songCount);
         ObservableList<Song> songs = songsTable.getItems();
         songs.add(song);
+        songQueue.add(song.getFile());
         songsTable.setItems(songs);
 
         // update the song counter to show the order of songs playing
         songCount++;
+    }
+    public void playSong(){
+        media = new Media(songQueue.get(currentSongIndex).toURI().toString());
+        mediaPlayer = new MediaPlayer(media);
+        mediaPlayer.play();
+        if (currentSongIndex < (songQueue.size()-1)){
+            currentSongIndex++;
+        }
     }
 }
