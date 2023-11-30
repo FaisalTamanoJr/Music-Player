@@ -6,26 +6,36 @@
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" prefHeight="418.0" prefWidth="523.0" spacing="20.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.musicplayer.music_player.MainController">
+<VBox alignment="CENTER" prefHeight="418.0" prefWidth="523.0" spacing="20.0" xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.musicplayer.music_player.MainController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
-   <ScrollPane prefHeight="350.0" prefWidth="483.0">
+   <ToolBar prefHeight="40.0" prefWidth="649.0">
+     <items>
+       <Button fx:id="addSongs_button" mnemonicParsing="false" onAction="#addSong" text="Add songs" />
+         <TextField fx:id="playlistName_textField" prefHeight="26.0" prefWidth="332.0" text="Playlist name (changeable)" />
+     </items>
+   </ToolBar>
+   <ScrollPane prefHeight="350.0" prefWidth="651.0">
       <content>
-         <ToolBar prefHeight="40.0" prefWidth="649.0">
-           <items>
-             <Button fx:id="addSongs_button" mnemonicParsing="false" text="Add songs" />
-               <TextField fx:id="playlistName_textField" prefHeight="26.0" prefWidth="332.0" text="Playlist name (changeable)" />
-           </items>
-         </ToolBar>
+         <TableView fx:id="songsTable" prefHeight="248.0" prefWidth="650.0">
+           <columns>
+               <TableColumn fx:id="orderColumn" prefWidth="75.0" text="Order" />
+             <TableColumn fx:id="titleColumn" prefWidth="268.0" text="Title" />
+             <TableColumn fx:id="artistColumn" minWidth="0.0" prefWidth="137.0" text="Artist" />
+               <TableColumn fx:id="albumColumn" prefWidth="169.0" text="Album" />
+           </columns>
+         </TableView>
       </content>
    </ScrollPane>
-   <AnchorPane prefHeight="66.0" prefWidth="483.0">
+   <AnchorPane fx:id="ap" prefHeight="66.0" prefWidth="483.0">
       <children>
          <ProgressBar fx:id="song_progressBar" layoutX="181.0" layoutY="13.0" prefHeight="10.0" prefWidth="258.0" progress="0.0" />
          <Button fx:id="play_button" layoutX="48.0" layoutY="6.0" mnemonicParsing="false" text="Play/Stop" />

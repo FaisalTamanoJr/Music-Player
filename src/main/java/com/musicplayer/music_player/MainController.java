@@ -1,14 +1,59 @@
 package com.musicplayer.music_player;
 
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
+import javafx.fxml.Initializable;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import org.apache.tika.exception.TikaException;
+import org.xml.sax.SAXException;
 
-public class MainController {
-    @FXML
-    private Label welcomeText;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.ResourceBundle;
 
+public class MainController implements Initializable {
+    @FXML private AnchorPane ap;
+    Stage stage;
     @FXML
-    protected void onHelloButtonClick() {
-        welcomeText.setText("Welcome to JavaFX Application!");
+    private Button addSongs_button;
+    @FXML
+    private TableView<Song> songsTable;
+    @FXML
+    private TableColumn<Song, String> titleColumn, artistColumn, albumColumn;
+    @FXML
+    private TableColumn<Song, Integer> orderColumn;
+    @FXML
+    private Integer songCount;
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        songCount = 1; // used for displaying the order of songs to play in the table
+
+        /* set cell factory is for the table view. it puts items in different columns depending on the property
+        * of the song class */
+        titleColumn.setCellValueFactory(new PropertyValueFactory<Song, String>("title"));
+        artistColumn.setCellValueFactory(new PropertyValueFactory<Song, String>("artist"));
+        albumColumn.setCellValueFactory(new PropertyValueFactory<Song, String>("album"));
+        orderColumn.setCellValueFactory(new PropertyValueFactory<Song, Integer>("order"));
+    }
+    public void addSong() throws TikaException, IOException, SAXException {
+        // for opening and selecting an mp3 file
+        stage = (Stage) ap.getScene().getWindow();
+        FileChooser fileChooser = new FileChooser();
+        File selectedFile = fileChooser.showOpenDialog(stage);
+
+        // for adding a song to the table
+        Song song = new Song(selectedFile, AudioParser.getMetadata(selectedFile),songCount);
+        ObservableList<Song> songs = songsTable.getItems();
+        songs.add(song);
+        songsTable.setItems(songs);
+
+        // update the song counter to show the order of songs playing
+        songCount++;
     }
 }
