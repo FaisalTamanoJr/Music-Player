@@ -24,7 +24,7 @@ public class MainController implements Initializable {
     @FXML private AnchorPane ap;
     private Stage stage;
     @FXML
-    private Label currentSongLabel, nextSongLabel;
+    private Label currentSongLabel;
     @FXML
     private TableView<Song> songsTable;
     @FXML
@@ -50,13 +50,24 @@ public class MainController implements Initializable {
     private boolean running;
     @FXML
     private ProgressBar song_progressBar;
+    @FXML
+    private Integer shuffle;
+    @FXML
+    private ArrayList<Song> shuffleList;
+    @FXML
+    private Deque<Song> shuffleQueue;
+    @FXML
+    private Stack<Song> shufflePrevious;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        shuffle = -1;
         songQueue = new ArrayDeque<>();
         songPrevious = new Stack<>();
+        shuffleList = new ArrayList<>();
+        shuffleQueue = new ArrayDeque<>();
+        shufflePrevious = new Stack<>();
         songCount = 1; // used for displaying the order of songs to play in the table
         currentSongLabel.setText("Current Song: ");
-        nextSongLabel.setText("Next Song: ");
 
         /* set cell factory is for the table view. it puts items in different columns depending on the property
         * of the song class */
@@ -84,6 +95,7 @@ public class MainController implements Initializable {
         ObservableList<Song> songs = songsTable.getItems();
         songs.add(song);
         songQueue.add(song);
+        shuffleList.add(song);
         songsTable.setItems(songs);
 
         // update the song counter to show the order of songs playing
@@ -93,9 +105,15 @@ public class MainController implements Initializable {
         beginTimer();
         media = new Media(songQueue.peek().getFile().toURI().toString());
         mediaPlayer = new MediaPlayer(media);
-        mediaPlayer.play();
-        currentSongLabel.setText("Current Song: "+ songQueue.peek().getArtist() + " - " + songQueue.peek().getTitle());
-        nextSongLabel.setText("Current Song: "+ songQueue.peek().getArtist() + " - " + songQueue.peek().getTitle());
+        if (shuffle == -1) {
+            mediaPlayer.play();
+            currentSongLabel.setText("Current Song: " + songQueue.peek().getArtist() + " - " + songQueue.peek().getTitle());
+        } else {
+            media = new Media(shuffleQueue.peek().getFile().toURI().toString());
+            mediaPlayer = new MediaPlayer(media);
+            mediaPlayer.play();
+            currentSongLabel.setText("Current Song: " + shuffleQueue.peek().getArtist() + " - " + shuffleQueue.peek().getTitle());
+        }
     }
     public void stopSong(){
         cancelTimer();
@@ -106,32 +124,52 @@ public class MainController implements Initializable {
             cancelTimer();
         }
         mediaPlayer.stop();
-        songPrevious.push(songQueue.pop());
+        if (shuffle == -1){
+            songPrevious.push(songQueue.pop());
+        } else {
+            shufflePrevious.push(shuffleQueue.pop());
+        }
         playSong();
     }
     public void previousSong(){
         mediaPlayer.stop();
-        songQueue.addFirst(songPrevious.pop());
+        if (shuffle == -1){
+            songQueue.addFirst(songPrevious.pop());
+        } else {
+            shuffleQueue.addFirst(shufflePrevious.pop());
+        }
         playSong();
     }
 
     public void beginTimer(){
-        timer = new Timer();
-        task = new TimerTask() {
-            public void run() {
-                running = true;
-                double current = mediaPlayer.getCurrentTime().toSeconds();
-                double end = media.getDuration().toSeconds();
-                song_progressBar.setProgress(current/end);
+            timer = new Timer();
+            task = new TimerTask() {
+                public void run() {
+                    running = true;
+                    double current = 0;
+                    current = mediaPlayer.getCurrentTime().toSeconds();
+                    double end = media.getDuration().toSeconds();
+                    song_progressBar.setProgress(current / end);
 
-                if (current/end == 1){
-                    cancelTimer();
+                    if (current / end == 1) {
+                        cancelTimer();
+                    }
                 }
-            }
-        };
+            };
+            timer.scheduleAtFixedRate(task, 1000, 1000);
     }
     public void cancelTimer(){
         running = false;
         timer.cancel();
+    }
+    public void shuffle(){
+        if (this.mediaPlayer != null){
+            mediaPlayer.stop();
+        }
+        shuffle *= -1;
+        if (shuffle == 1){
+            Collections.shuffle(shuffleList);
+            shuffleQueue.addAll(shuffleList);
+        }
     }
 }

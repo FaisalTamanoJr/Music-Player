@@ -41,12 +41,11 @@
    </ScrollPane>
    <AnchorPane fx:id="ap" prefHeight="66.0" prefWidth="483.0">
       <children>
-         <ProgressBar fx:id="song_progressBar" layoutX="3.0" layoutY="15.0" prefHeight="6.0" prefWidth="436.0" progress="0.0" />
-         <Label fx:id="currentSongLabel" alignment="BASELINE_LEFT" layoutX="-2.0" layoutY="19.0" text="Current Song:" />
-         <Label fx:id="nextSongLabel" alignment="BASELINE_LEFT" layoutY="-3.0" text="Next Song:" />
-         <Button fx:id="shuffle_button" layoutX="448.0" layoutY="5.0" mnemonicParsing="false" text="Shuffle" />
+         <ProgressBar fx:id="song_progressBar" layoutY="20.0" prefHeight="16.0" prefWidth="388.0" progress="0.0" />
+         <Label fx:id="currentSongLabel" alignment="BASELINE_LEFT" layoutY="-3.0" text="Current Song:" />
+         <Button fx:id="shuffle_button" layoutX="421.0" layoutY="10.0" mnemonicParsing="false" onAction="#shuffle" text="Shuffle" />
          <Slider fx:id="volume_slider" layoutX="511.0" layoutY="11.0" value="50.0" />
-         <Label layoutX="511.0" layoutY="22.0" text="Volume" />
+         <Label layoutX="556.0" layoutY="26.0" text="Volume" />
       </children>
    </AnchorPane>
 </VBox>
