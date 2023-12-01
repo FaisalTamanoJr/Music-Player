@@ -1,5 +1,7 @@
 package com.musicplayer.music_player;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -16,14 +18,13 @@ import org.xml.sax.SAXException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class MainController implements Initializable {
     @FXML private AnchorPane ap;
-    Stage stage;
+    private Stage stage;
     @FXML
-    Label currentSongLabel, nextSongLabel;
+    private Label currentSongLabel, nextSongLabel;
     @FXML
     private TableView<Song> songsTable;
     @FXML
@@ -33,16 +34,26 @@ public class MainController implements Initializable {
     @FXML
     private Integer songCount;
     @FXML
-    Media media;
+    private Media media;
     @FXML
-    MediaPlayer mediaPlayer;
+    private Slider volume_slider;
     @FXML
-    ArrayList<Song> songQueue;
+    private MediaPlayer mediaPlayer;
     @FXML
-    int currentSongIndex;
+    private Deque<Song> songQueue;
+    @FXML
+    private Stack<Song> songPrevious;
+    @FXML
+    private Timer timer;
+    @FXML
+    TimerTask task;
+    private boolean running;
+    @FXML
+    private ProgressBar song_progressBar;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        songQueue = new ArrayList<>();
+        songQueue = new ArrayDeque<>();
+        songPrevious = new Stack<>();
         songCount = 1; // used for displaying the order of songs to play in the table
         currentSongLabel.setText("Current Song: ");
         nextSongLabel.setText("Next Song: ");
@@ -54,6 +65,13 @@ public class MainController implements Initializable {
         albumColumn.setCellValueFactory(new PropertyValueFactory<Song, String>("album"));
         orderColumn.setCellValueFactory(new PropertyValueFactory<Song, Integer>("order"));
 
+        volume_slider.valueProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
+                mediaPlayer.setVolume(volume_slider.getValue()*0.01);
+            }
+        });
+        song_progressBar.setStyle("-fx-accent: #00FF00");
     }
     public void addSong() throws TikaException, IOException, SAXException {
         // for opening and selecting an mp3 file
@@ -72,16 +90,48 @@ public class MainController implements Initializable {
         songCount++;
     }
     public void playSong(){
-        media = new Media(songQueue.get(currentSongIndex).getFile().toURI().toString());
+        beginTimer();
+        media = new Media(songQueue.peek().getFile().toURI().toString());
         mediaPlayer = new MediaPlayer(media);
         mediaPlayer.play();
-        currentSongLabel.setText("Current Song: "+ songQueue.get(currentSongIndex).getArtist() + " - " + songQueue.get(currentSongIndex).getTitle());
-        if (songQueue.get(currentSongIndex+1)!=null){
-            currentSongIndex++;
-            nextSongLabel.setText("Next Song: "+ songQueue.get(currentSongIndex).getArtist() + " - " + songQueue.get(currentSongIndex).getTitle());
-        } else {
-            nextSongLabel.setText("Next Song: ");
-            currentSongIndex-=1;
+        currentSongLabel.setText("Current Song: "+ songQueue.peek().getArtist() + " - " + songQueue.peek().getTitle());
+        nextSongLabel.setText("Current Song: "+ songQueue.peek().getArtist() + " - " + songQueue.peek().getTitle());
+    }
+    public void stopSong(){
+        cancelTimer();
+        mediaPlayer.pause();
+    }
+    public void nextSong(){
+        if (running){
+            cancelTimer();
         }
+        mediaPlayer.stop();
+        songPrevious.push(songQueue.pop());
+        playSong();
+    }
+    public void previousSong(){
+        mediaPlayer.stop();
+        songQueue.addFirst(songPrevious.pop());
+        playSong();
+    }
+
+    public void beginTimer(){
+        timer = new Timer();
+        task = new TimerTask() {
+            public void run() {
+                running = true;
+                double current = mediaPlayer.getCurrentTime().toSeconds();
+                double end = media.getDuration().toSeconds();
+                song_progressBar.setProgress(current/end);
+
+                if (current/end == 1){
+                    cancelTimer();
+                }
+            }
+        };
+    }
+    public void cancelTimer(){
+        running = false;
+        timer.cancel();
     }
 }
